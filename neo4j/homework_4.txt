@@ -1,7 +1,154 @@
-// The scenario you have used for your schema is:
+// The scenario you have used for your schema is: Harry Potter 
 
 
 // This is an example. Your own commands should *not* be commented out so we can pipe the file into the cypher-shell.
 // If you'd like to test your commands, you can run 'cat homework_4.txt | cypher-shell -u neo4j -p test' from
 // the vagrant box command line. Make sure neo4j is running first.
 // CREATE (a:person { name: 't' });
+
+// Creating nodes 
+
+CREATE (hogwarts:School { name: 'Hogwarts', established: 990});
+CREATE (ravenclaw:House { name: 'Ravenclaw', animal: 'Eagle'});
+CREATE (slytherin:House { name: 'Slytherin', animal: 'Serpent'});
+CREATE (gryffindor:House { name: 'Gryffindor', animal: 'Lion'});
+CREATE (dumbledore:Person { name: 'Dumbledore', born: 1881});
+CREATE (harry:Person { name: 'Harry', born: 1980});
+CREATE (hermione:Person { name: 'Hermione', born: 1979});
+CREATE (ron:Person { name: 'Ron', born: 1980});
+CREATE (draco:Person { name: 'Draco', born: 1980});
+CREATE (cho:Person { name: 'Cho', born: 1978});
+
+// Creating relationships
+
+MATCH (a:School), (b:House)
+WHERE a.name = 'Hogwarts' AND b.name = 'Ravenclaw'
+CREATE (a)-[r:SCHOOL_OF {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:School), (b:House)
+WHERE a.name = 'Hogwarts' AND b.name = 'Slytherin'
+CREATE (a)-[r:SCHOOL_OF {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:School), (b:House)
+WHERE a.name = 'Hogwarts' AND b.name = 'Gryffindor'
+CREATE (a)-[r:SCHOOL_OF {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:House), (b:School)
+WHERE a.name = 'Ravenclaw' AND b.name = 'Hogwarts'
+CREATE (a)-[r:BELONGS_TO {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:House), (b:School)
+WHERE a.name = 'Slytherin' AND b.name = 'Hogwarts'
+CREATE (a)-[r:BELONGS_TO {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:House), (b:School)
+WHERE a.name = 'Gryffindor' AND b.name = 'Hogwarts'
+CREATE (a)-[r:BELONGS_TO {since: 990}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Dumbledore' AND b.name ='Hogwarts'
+CREATE (a)-[r:HEADMASTER_OF {since: 1966, to:1997}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Harry' AND b.name ='Hogwarts'
+CREATE (a)-[r:STUDENT_OF_SCHOOL {since: 1991}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Ron' AND b.name ='Hogwarts'
+CREATE (a)-[r:STUDENT_OF_SCHOOL {since: 1991}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Hermione' AND b.name ='Hogwarts'
+CREATE (a)-[r:STUDENT_OF_SCHOOL {since: 1991}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Draco' AND b.name ='Hogwarts'
+CREATE (a)-[r:STUDENT_OF_SCHOOL {since: 1991}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:School)
+WHERE a.name = 'Cho' AND b.name ='Hogwarts'
+CREATE (a)-[r:STUDENT_OF_SCHOOL {since: 1990}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:House)
+WHERE a.name = 'Harry' AND b.name ='Gryffindor'
+CREATE (a)-[r:STUDENT_OF_HOUSE]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:House)
+WHERE a.name = 'Ron' AND b.name ='Gryffindor'
+CREATE (a)-[r:STUDENT_OF_HOUSE]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:House)
+WHERE a.name = 'Hermione' AND b.name ='Gryffindor'
+CREATE (a)-[r:STUDENT_OF_HOUSE]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:House)
+WHERE a.name = 'Draco' AND b.name ='Slytherin'
+CREATE (a)-[r:STUDENT_OF_HOUSE]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:House)
+WHERE a.name = 'Cho' AND b.name ='Ravenclaw'
+CREATE (a)-[r:STUDENT_OF_HOUSE]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:Person)
+WHERE a.name = 'Harry' AND b.name ='Ron'
+CREATE (a)-[r:FRIEND_OF {since: 1990}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:Person)
+WHERE a.name = 'Harry' AND b.name ='Hermione'
+CREATE (a)-[r:FRIEND_OF {since: 1990}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:Person)
+WHERE a.name = 'Harry' AND b.name ='Cho'
+CREATE (a)-[r:FRIEND_OF {since: 1992}]->(b)
+RETURN type(r);
+
+MATCH (a:Person), (b:Person)
+WHERE a.name = 'Harry' AND b.name ='Draco'
+CREATE (a)-[r:RIVAL_OF {since: 1990}]->(b)
+RETURN type(r);
+
+
+// Querying for a subgraph 
+
+// showing the students of each house 
+MATCH (a:Person)-[r:STUDENT_OF_HOUSE]->(b:House)
+RETURN collect(a.name), type(r), b.name;
+
+// showing all the houses that belong to Hogwarts
+MATCH (a:House)-[r:BELONGS_TO]->(b:School)
+RETURN collect(a.name), type(r), b.name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
