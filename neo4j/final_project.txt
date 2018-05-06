@@ -1,0 +1,232 @@
+// Script to set up objects and their relationships to each other in the neo4j database
+
+// cat final_project.txt | cypher-shell -u neo4j -p test
+
+// Create 3 users 
+CREATE (chang:User { username: 'Chang', password: 'cl3403', bio: 'I love sharing traveling photos'});
+CREATE (biqing:User { username: 'Biqing', password: 'bq2564', bio: 'I love sharing my food pictures!'});
+CREATE (lillian:User { username: 'Lillian', password: 'lw2356', bio: 'Columbia 2020 ~ Follow me!'});
+
+// Create other objects
+
+// photos : photos that users post
+CREATE (photo1:Photo { photo_id: 1, date: 20180130, likes: 2});
+CREATE (photo2:Photo { photo_id: 2, date: 20180218, likes: 1});
+CREATE (photo3:Photo { photo_id: 3, date: 20170430, likes: 0});
+
+// videos : videos that users post 
+CREATE (video1:Video { video_id: 1, date: 20170809, likes: 2});
+CREATE (video2:Video { video_id: 2, date: 20180428, likes: 0});
+CREATE (video3:Video { video_id: 3, date: 20180405, likes: 0});
+
+// comments: comments that users write under photos and videos 
+CREATE (comment1:Comment { comment_id: 1, date: 20180201, likes: 0, content: 'I love your photo!'});
+CREATE (comment2:Comment { comment_id: 2, date: 20170810, likes: 0, content: 'OMG THIS VIDEO'});
+
+// messages: messages that users send to each other 
+CREATE (message1:Message { message_id: 1, date: 20180309, content: 'Your posts are so beautiful!'});
+CREATE (message2:Message { message_id: 2, date: 20180310, content: 'Haha thanks!!'});
+
+// notifications: notifications that are sent to the users 
+CREATE (notification1:Notification { n_id: 1, date: 20180201, notice: 'Lillian loved your post!'});
+CREATE (notification2:Notification { n_id: 2, date: 20180220, notice: 'Lillian loved your post!'});
+
+// stories: stories that users shared; they can be viewed by other users within 24 hours 
+CREATE (story1:Story { story_id: 1, date: 20180101, watches: 1});
+CREATE (story2:Story { story_id: 2, date: 20180105, watches: 1});
+
+// collections: collections of photos and videos that users make, and each collection can have multiple photos and videos
+CREATE (collection1:Collection { c_id: 1, date: 20180501});
+CREATE (collection2:Collection { c_id: 2, date: 20180427});
+
+// Create relationships between all entities 
+
+MATCH (a:User), (b:User)
+WHERE a.username = 'Biqing' AND b.username = 'Chang'
+CREATE (a)-[r:FOLLOW]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:User)
+WHERE a.username = 'Lillian' AND b.username = 'Biqing'
+CREATE (a)-[r:FOLLOW]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:User)
+WHERE a.username = 'Lillian' AND b.username = 'Chang'
+CREATE (a)-[r:FOLLOW]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Chang' AND b.photo_id = 1
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Chang' AND b.photo_id = 2
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Biqing' AND b.photo_id = 3
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Video)
+WHERE a.username = 'Chang' AND b.video_id = 1
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Video)
+WHERE a.username = 'Chang' AND b.video_id = 2
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Video)
+WHERE a.username = 'Biqing' AND b.video_id = 3
+CREATE (a)-[r:POST]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Lillian' AND b.photo_id = 1
+CREATE (a)-[r:LIKE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Lillian' AND b.photo_id = 2
+CREATE (a)-[r:LIKE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Photo)
+WHERE a.username = 'Biqing' AND b.photo_id = 1
+CREATE (a)-[r:LIKE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Video)
+WHERE a.username = 'Lillian' AND b.video_id = 1
+CREATE (a)-[r:LIKE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Video)
+WHERE a.username = 'Biqing' AND b.video_id = 1
+CREATE (a)-[r:LIKE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Comment)
+WHERE a.username = 'Biqing' AND b.comment_id = 1
+CREATE (a)-[r:WRITE]->(b)
+RETURN type(r);
+
+MATCH (a:Comment), (b:Photo)
+WHERE a.comment_id = 1 AND b.photo_id = 1
+CREATE (a)-[r:BELONG_TO]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Comment)
+WHERE a.username = 'Lillian' AND b.comment_id = 2
+CREATE (a)-[r:WRITE]->(b)
+RETURN type(r);
+
+MATCH (a:Comment), (b:Video)
+WHERE a.comment_id = 2 AND b.video_id = 1
+CREATE (a)-[r:BELONG_TO]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Message)
+WHERE a.username = 'Biqing' AND b.message_id = 1
+CREATE (a)-[r:SEND]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Message)
+WHERE a.username = 'Chang' AND b.message_id = 1
+CREATE (a)-[r:RECEIVE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Message)
+WHERE a.username = 'Chang' AND b.message_id = 2
+CREATE (a)-[r:SEND]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Message)
+WHERE a.username = 'Biqing' AND b.message_id = 2
+CREATE (a)-[r:RECEIVE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Notification)
+WHERE a.username = 'Chang' AND b.n_id = 1
+CREATE (a)-[r:GET]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Notification)
+WHERE a.username = 'Chang' AND b.n_id = 2
+CREATE (a)-[r:GET]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Story)
+WHERE a.username = 'Biqing' AND b.story_id = 1
+CREATE (a)-[r:ADD]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Story)
+WHERE a.username = 'Biqing' AND b.story_id = 2
+CREATE (a)-[r:ADD]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Story)
+WHERE a.username = 'Lillian' AND b.story_id = 1
+CREATE (a)-[r:WATCH]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Story)
+WHERE a.username = 'Lillian' AND b.story_id = 2
+CREATE (a)-[r:WATCH]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Collection)
+WHERE a.username = 'Biqing' AND b.c_id = 1
+CREATE (a)-[r:SAVE]->(b)
+RETURN type(r);
+
+MATCH (a:User), (b:Collection)
+WHERE a.username = 'Biqing' AND b.c_id = 2
+CREATE (a)-[r:SAVE]->(b)
+RETURN type(r);
+
+MATCH (a:Photo), (b:Collection)
+WHERE a.photo_id = 1 AND b.c_id = 1
+CREATE (a)-[r:IN]->(b)
+RETURN type(r);
+
+MATCH (a:Photo), (b:Collection)
+WHERE a.photo_id = 2 AND b.c_id = 1
+CREATE (a)-[r:IN]->(b)
+RETURN type(r);
+
+MATCH (a:Video), (b:Collection)
+WHERE a.video_id = 1 AND b.c_id = 2
+CREATE (a)-[r:IN]->(b)
+RETURN type(r);
+
+MATCH (a:Video), (b:Collection)
+WHERE a.video_id = 2 AND b.c_id = 2
+CREATE (a)-[r:IN]->(b)
+RETURN type(r);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
