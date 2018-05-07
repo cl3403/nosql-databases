@@ -1,5 +1,5 @@
 // Script to set up objects and their relationships to each other in the neo4j database
-
+// According to Piazza, a txt file to create the database objects is okay 
 // cat final_project.txt | cypher-shell -u neo4j -p test
 
 // Create 3 users 
