@@ -36,6 +36,10 @@
 # all the slaves and when master goes down, every slave has the same data. 
 #
 
+
+# Database objects are created (PART 4) in another file final_project.txt and the command to pipe is also
+# included in that file. According to Piazza, this is okay.
+
 from neo4j.v1 import GraphDatabase
 uri = "bolt://localhost:7687"
 driver = GraphDatabase.driver(uri, auth=("neo4j", "test"))
